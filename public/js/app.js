@@ -89,4 +89,10 @@ function renderAlbum(album) {
 
   // render to the page with jQuery
   $("#albums").append(albumHtml);
+  $("form").on("submit", function(e){
+    e.preventDefault();
+    console.log($(this).serialize() );
+    $.post("/api/albums", $(this).serialize() );
+    $(this).trigger("reset");
+  });
 }
