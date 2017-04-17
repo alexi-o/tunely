@@ -1,11 +1,3 @@
-/* CLIENT-SIDE JS
- *
- * You may edit this file as you see fit.  Try to separate different components
- * into functions and objects as needed.
- *
- */
-
-
 /* hard-coded data! */
 var sampleAlbums = [];
 sampleAlbums.push({
@@ -34,7 +26,6 @@ sampleAlbums.push({
            });
 /* end of hard-coded data */
 
-
 $(document).ready(function() {
   console.log('app.js loaded!');
   $.get('/api/albums', function(albums) {
@@ -44,13 +35,21 @@ $(document).ready(function() {
    });
 });
 
+function buildSongsHtml(songs) { 
+  var songText = " – "; 
+  songs.forEach(function(song) { 
+    songText = songText + "(" + song.trackNumber + ") " + song.name + " – "; 
+  }); 
+    var songsHtml = " + "  + songText + " + ";
+    return songsHtml; 
+  }
+
 // this function takes a single album and renders it to the page
 function renderAlbum(album) {
   console.log('rendering album:', album);
-
   var albumHtml =
   "        <!-- one album -->" +
-  "        <div class='row album' data-album-id='" + album.artistName + "'>" +
+  "        <div class='row album' data-album-id='" + album._id + "'>" +
   "          <div class='col-md-10 col-md-offset-1'>" +
   "            <div class='panel panel-default'>" +
   "              <div class='panel-body'>" +
@@ -67,11 +66,15 @@ function renderAlbum(album) {
   "                      </li>" +
   "                      <li class='list-group-item'>" +
   "                        <h4 class='inline-header'>Artist Name:</h4>" +
-  "                        <span class='artist-name'>" +  album.releaseDate + "</span>" +
+  "                        <span class='artist-name'>" +  album.artistName + "</span>" +
   "                      </li>" +
   "                      <li class='list-group-item'>" +
   "                        <h4 class='inline-header'>Released date:</h4>" +
-  "                        <span class='album-releaseDate'>" + album.genres + "</span>" +
+  "                        <span class='album-releaseDate'>" + album.releaseDate + "</span>" +
+  "                      </li>" +
+  "                      <li class='list-group-item'>" +
+  "                        <h4 class='inline-header'>Songs:</h4>" +
+  "                        <span class='album-releaseDate'>"  + buildSongsHtml(album.songs) + "</span>" +
   "                      </li>" +
   "                    </ul>" +
   "                  </div>" +
@@ -80,7 +83,7 @@ function renderAlbum(album) {
 
   "              </div>" + // end of panel-body
 
-  "              <div class='panel-footer'>" +
+  "              <div class='panel-footer'>" + "<button class='btn btn-primary add-song'>Add Song</button>" +
   "              </div>" +
 
   "            </div>" +
@@ -88,11 +91,39 @@ function renderAlbum(album) {
   "          <!-- end one album -->";
 
   // render to the page with jQuery
-  $("#albums").append(albumHtml);
-  $("form").on("submit", function(e){
+
+$("#albums").append(albumHtml);
+
+$('#albums').on('click', '.add-song', function(e) {
+    e.preventDefault();
+    var id = $(this).parents('.album').data('album-id');
+    console.log('id', id);
+    $('#songModal').data('album-id', id);
+    $('#songModal').modal();
+
+  });
+
+
+$("form").on("submit", function(e){
     e.preventDefault();
     console.log($(this).serialize() );
     $.post("/api/albums", $(this).serialize() );
     $(this).trigger("reset");
   });
+
+$("#saveSong").on("click", function handleNewSongSubmit(e){
+  e.preventDefault();
+  var songName = $("#songName").val();
+  var trackNumber = $("#trackNumber").val();
+  var albumID = $('#songModal').data().albumId;
+
+  var url = "http://localhost:3000/api/albums/" + albumID + "/songs";
+
+  console.log(songName + " " + trackNumber + " " + albumID);
+   $.ajax({
+    method: "POST",
+    url: url,
+    data: { "name": songName, "trackNumber": trackNumber }
+    });
+ });
 }
