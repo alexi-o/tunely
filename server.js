@@ -54,12 +54,23 @@ app.get('/api/albums', function album_index(req, res){
   });
 });
 //GET /api/albums/:album_id/:id
+
+
 app.get('/api/albums/:id', function (req, res){
   var id = req.params.id;
   db.Album.findOne({_id: id}, function (err, album) {
     res.json(album);
   });
 });
+
+app.get('/api/albums/:album_id/songs', function(req, res){
+  var body = req.body;
+  var albumId = req.params.album_id;
+  db.Album.findOne({_id: albumId}, function(err, album) {
+    res.json(album.songs);
+  });
+});
+
 
 app.post('/api/albums', function album_create(req, res){
   var body = req.body;
@@ -70,17 +81,32 @@ app.post('/api/albums', function album_create(req, res){
   });
 });
 
-//GET /api/albums/:album_id/songs
-app.post('api/albums/:id/songs', function(req, res) {
-  var body = req.body;
-  var albumId = req.params.album_id;
-  console.log(albumId + " " + req.body);
-  db.Album.findOne({_id: album_id}, function(err, albums) {
-  album.songs.push(body);
-  album.save();
-  res.json(album);
+app.post('/api/albums/:id/songs', function (req,res){
+  var albumId = req.params.id;
+  db.Album.findById(albumId, function(err, album){
+    db.Album.findById(albumId)
+    .exec(function(err, album){
+      album.songs.push(req.body);
+      album.save(console.log("success"));
+    res.json(album);
   });
 });
+  });
+
+// app.post('/api/albums/:album_id/songs', function song_create(req, res){
+//   var body = req.body;
+//   var albumId = req.params.id;
+//   db.Album.findById(albumId, function(err, album) {
+//     db.Album.findById(albumId)
+//       .exec(function(err, album){
+//          if(err) res.json({message: error});
+//          album.songs.push(body);
+//          res.json(album);
+//        });
+//   });
+// });
+
+
 
 /**********
  * SERVER *

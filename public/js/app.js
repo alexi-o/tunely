@@ -28,9 +28,53 @@ sampleAlbums.push({
 
 $(document).ready(function() {
   console.log('app.js loaded!');
-  $.get('/api/albums', function(albums) {
-      albums.forEach(function(album){
-      renderAlbum(album);
+    $.get('/api/albums', function(albums) {
+        albums.forEach(function(album){
+        renderAlbum(album);
+       });
+        $('#albums').on('click', '.add-song', function(e) {
+      e.preventDefault();
+      var id = $(this).parents('.album').data('album-id');
+      console.log('id', id);
+      $('#songModal').data('album-id', id);
+      $('#songModal').modal();
+    });
+
+    $("form").on("submit", function(e){
+        e.preventDefault();
+        console.log($(this).serialize() );
+        $.post("/api/albums", $(this).serialize() );
+        $(this).trigger("reset");
+      });
+
+    $("#saveSong").on("click", function handleNewSongSubmit(e){
+      e.preventDefault();
+      var songName = $("#songName").val();
+      var trackNumber = $("#trackNumber").val();
+      var albumID = $('#songModal').data('album-id');
+      console.log("testing albumId on app.js " + albumID);
+
+      var url = "http://localhost:3000/api/albums/" + albumID + "/songs";
+
+      var song = {
+        "name": songName,
+        "trackNumber": trackNumber
+      };
+
+      console.log(songName + " " + "testing app.js" + trackNumber + " " + albumID);
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: song,
+          success: [function(data){
+            console.log(data);
+            $('.album[data-album-id=' + albumID + ']').remove();
+            renderAlbum(data);
+          }],
+    });
+            $('#songName').val('');
+            $('#trackNumber').val('');
+            $('#songModal').modal('toggle');
      });
    });
 });
@@ -94,36 +138,4 @@ function renderAlbum(album) {
 
 $("#albums").append(albumHtml);
 
-$('#albums').on('click', '.add-song', function(e) {
-    e.preventDefault();
-    var id = $(this).parents('.album').data('album-id');
-    console.log('id', id);
-    $('#songModal').data('album-id', id);
-    $('#songModal').modal();
-
-  });
-
-
-$("form").on("submit", function(e){
-    e.preventDefault();
-    console.log($(this).serialize() );
-    $.post("/api/albums", $(this).serialize() );
-    $(this).trigger("reset");
-  });
-
-$("#saveSong").on("click", function handleNewSongSubmit(e){
-  e.preventDefault();
-  var songName = $("#songName").val();
-  var trackNumber = $("#trackNumber").val();
-  var albumID = $('#songModal').data().albumId;
-
-  var url = "http://localhost:3000/api/albums/" + albumID + "/songs";
-
-  console.log(songName + " " + trackNumber + " " + albumID);
-   $.ajax({
-    method: "POST",
-    url: url,
-    data: { "name": songName, "trackNumber": trackNumber }
-    });
- });
 }
