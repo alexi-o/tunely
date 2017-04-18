@@ -32,11 +32,9 @@ app.get('/', function homepage (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
 /*
  * JSON API Endpoints
  */
-
 app.get('/api', function api_index (req, res){
   res.json({
     message: "Welcome to tunely!",
@@ -54,8 +52,6 @@ app.get('/api/albums', function album_index(req, res){
   });
 });
 //GET /api/albums/:album_id/:id
-
-
 app.get('/api/albums/:id', function (req, res){
   var id = req.params.id;
   db.Album.findOne({_id: id}, function (err, album) {
@@ -70,7 +66,6 @@ app.get('/api/albums/:album_id/songs', function(req, res){
     res.json(album.songs);
   });
 });
-
 
 app.post('/api/albums', function album_create(req, res){
   var body = req.body;
@@ -89,24 +84,9 @@ app.post('/api/albums/:id/songs', function (req,res){
       album.songs.push(req.body);
       album.save(console.log("success"));
     res.json(album);
+    });
   });
 });
-  });
-
-// app.post('/api/albums/:album_id/songs', function song_create(req, res){
-//   var body = req.body;
-//   var albumId = req.params.id;
-//   db.Album.findById(albumId, function(err, album) {
-//     db.Album.findById(albumId)
-//       .exec(function(err, album){
-//          if(err) res.json({message: error});
-//          album.songs.push(body);
-//          res.json(album);
-//        });
-//   });
-// });
-
-
 
 /**********
  * SERVER *
