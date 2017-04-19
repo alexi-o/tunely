@@ -50,20 +50,17 @@ $(document).ready(function() {
     $("#saveSong").on("click", function handleNewSongSubmit(e){
       e.preventDefault();
       var songName = $("#songName").val();
-      var trackNumber = $("#trackNumber").val();
+      var trackNumber = parseInt($("#trackNumber").val(), 10);
       var albumID = $('#songModal').data('album-id');
       console.log("testing albumId on app.js " + albumID);
 
-      var url = "http://localhost:3000/api/albums/" + albumID + "/songs";
-
       var song = {
-        "name": songName,
-        "trackNumber": trackNumber
+        name: songName,
+        trackNumber: trackNumber
       };
-
-      console.log(songName + " " + "testing app.js" + trackNumber + " " + albumID);
+      console.log(song);
         $.ajax({
-          url: url,
+          url: "/api/albums/" + albumID + "/songs",
           type: 'POST',
           data: song,
           success: [function(data){
@@ -71,7 +68,7 @@ $(document).ready(function() {
             $('.album[data-album-id=' + albumID + ']').remove();
             renderAlbum(data);
           }],
-    });
+    }); 
             $('#songName').val('');
             $('#trackNumber').val('');
             $('#songModal').modal('toggle');
@@ -135,6 +132,14 @@ function renderAlbum(album) {
   "          <!-- end one album -->";
 
   // render to the page with jQuery
+function reRenderAlbum(id, data) {
+  var album = $("div").find("[data-album-id='" + id + "']");
+  album.remove();
+  renderAlbum(data);
+}
+
+
+
 
 $("#albums").append(albumHtml);
 

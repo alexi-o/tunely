@@ -55,15 +55,37 @@ albumsList.push({
               genres: [ 'r&b', 'electropop', 'synthpop' ]
             });
 
-albumsList.forEach(function(album) {
-    album.songs = sampleSongs;
-    console.log(albumsList);
-});
+db.Song.remove({}, function(err, songs) {
+  console.log('removed all songs');
+  db.Song.create(sampleSongs, function(err, songs){
+    if (err) {
+      console.log(err);
+    }
+    db.Album.remove({}, function(err, albums){
+      console.log('removed all albums');
+      albumsList.forEach(function (albumData) {
+        var album = new db.Album({
+          artistName: albumData.artistName,
+          name: albumData.name,
+          releaseDate: albumData.releaseDate, 
+          genres: albumData.genres
+        });
+        db.Song.find({}, function (err, songs) {
+          console.log(songs);
+          if (err) {
+            console.log(err);
+            return;
+          }
+          album.songs = songs;
+          album.save(function(err, savedAlbum){
+            if (err) {
+              return console.log(err);
+            }
+            console.log(savedAlbum);
+          });
+        });
+      });
+    });
 
-db.Album.remove({}, function(err, albums){
-  db.Album.create(albumsList, function(err, albums){
-    if (err) { return console.log('ERROR', err); }
-    console.log("all albums:", albums);
-    console.log("created", albums.length, "albums");
   });
 });

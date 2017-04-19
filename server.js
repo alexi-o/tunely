@@ -19,7 +19,6 @@ app.use(express.static(__dirname + '/public'));
 
  var db = require('./models');
 
-
 /**********
  * ROUTES *
  **********/
@@ -77,13 +76,17 @@ app.post('/api/albums', function album_create(req, res){
 });
 
 app.post('/api/albums/:id/songs', function (req,res){
-  var albumId = req.params.id;
-  db.Album.findById(albumId, function(err, album){
-    db.Album.findById(albumId)
+  db.Album.findById(req.params.id, function(err, album){
+    db.Album.findById(req.params.id)
     .exec(function(err, album){
-      album.songs.push(req.body);
-      album.save(console.log("success"));
-    res.json(album);
+        if(err) {
+          console.log(err);
+        } else {
+          album.songs.push(req.body);
+          album.save(console.log("Added new song"));
+        } 
+      res.json(album);
+      console.log(album + "New Song");
     });
   });
 });
